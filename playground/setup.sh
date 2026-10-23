@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# Run once inside a fresh Ubuntu 24.04 Desktop install (VM or laptop).
+# Run once inside a fresh Ubuntu 26.04 Desktop install (VM or laptop).
 # Idempotent: safe to re-run. Installs a dev toolchain and clones this repo.
 set -euo pipefail
 
 sudo apt update
-sudo apt install -y \
+
+# wlroots dev package name is versioned on newer releases (e.g. libwlroots-0.19-dev on 26.04)
+WLROOTS_DEV=$(apt-cache search --names-only '^libwlroots(-[0-9.]+)?-dev$' | awk '{print $1}' | sort -V | tail -1)
+echo "wlroots dev package: ${WLROOTS_DEV:-none found}"
+
+sudo apt install -y $WLROOTS_DEV \
   build-essential git curl wget vim openssh-server \
   openjdk-21-jdk maven clang cmake meson ninja-build pkg-config \
   vulkan-tools mesa-utils wayland-utils wayland-protocols \
-  libwayland-dev libwlroots-dev libxkbcommon-dev libinput-dev libdrm-dev \
+  libwayland-dev libxkbcommon-dev libinput-dev libdrm-dev \
   weston sway \
   htop tmux \
   open-vm-tools-desktop     # no-op on bare metal; gives VMware clipboard/resize
