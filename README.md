@@ -1,6 +1,6 @@
 # vexelray-os
 
-Custom Wayland desktop OS built on Ubuntu 24.04. See [docs/design.md](docs/design.md).
+A desktop OS on Ubuntu 24.04 whose compositor draws every program the way a VexelRay application draws itself. See [docs/design.md](docs/design.md) and [docs/decisions.md](docs/decisions.md).
 
 **Start here: [playground/](playground/README.md)**, a stock Ubuntu Desktop VM to experiment in. The mkosi image build below is the later, reproducible stage.
 
