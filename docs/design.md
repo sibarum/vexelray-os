@@ -21,7 +21,7 @@ recorded as carefully as one that it works.
 
 | Area | Decision | Why |
 |---|---|---|
-| Base | Ubuntu 24.04 LTS (noble) | Driver packaging (signed NVIDIA modules) is already solved |
+| Base | Ubuntu 26.04 LTS (resolute) | Driver packaging (signed NVIDIA modules) is already solved |
 | Image builder | mkosi, declarative, profiles `vm` / `nvidia` / `dev` | Rebuildable from scratch, outputs raw disk |
 | Kernel / init | Stock Ubuntu kernel, systemd | Non-goal to replace; driver support is the hard part |
 | Updates | Plain apt from our own repo (v1); atomic updates maybe v2 | Keep v1 simple |

@@ -1,9 +1,9 @@
 # Playground
 
-Goal: a stable place to break things. Stock Ubuntu 24.04 Desktop, then customize.
+Goal: a stable place to break things. Stock Ubuntu 26.04 LTS Desktop, then customize.
 
 ## 1. Create the VM (VMware Workstation)
-1. Download the **Ubuntu 24.04 Desktop** ISO from ubuntu.com.
+1. Download the **Ubuntu 26.04 LTS Desktop** ISO from ubuntu.com/download/desktop (the main download button serves the latest LTS; check the filename says `26.04`).
 2. New VM, Typical, point at the ISO, guest OS "Ubuntu 64-bit".
 3. Disk 60 GB (single file, thin), 8 GB RAM, 4+ CPUs.
 4. Before first boot: VM Settings, Display, enable **Accelerate 3D graphics**, 2 GB graphics memory.
