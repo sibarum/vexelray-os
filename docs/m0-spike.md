@@ -55,7 +55,10 @@ message, byte, prediction and latency-structure numbers carry over better.
 ## Results
 
 The full tables are [m0/run.md](m0/run.md) and [m0/sweep.md](m0/sweep.md). Two windowed runs and one offscreen run
-agreed to within a few percent.
+agreed to within a few percent. The runs predate one fix: the raster drew each window's live instance count, which a
+batch arriving mid-raster could put ahead of what had been uploaded, for an extra stale instance or a missing one in
+that frame's damage. It now draws the count uploaded with the data. That could only cost pixels, not change a
+number here.
 
 ### Volume (D2)
 
@@ -80,7 +83,8 @@ So an animating window costs about 62 KB/s on the wire, and applying a batch is 
 ### Raster
 
 The sweep: full-screen windows of 11 px text, p50 on llvmpipe. Past 64 lines the text is stacked 3 px apart, which is
-overlapping windows.
+overlapping windows. The last row is 128 lines cut off at 16,384 instances, the most a window holds in the spike (128
+glyphs dropped).
 
 | Instances | Whole screen | One 220x18 rect |
 |---|---|---|

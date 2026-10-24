@@ -78,6 +78,8 @@ public final class Compositor {
         final int[] ids = new int[SLAB];
         final float[] data = new float[SLAB * INSTANCE_FLOATS];
         int count;
+        /** How many instances the GPU buffer holds as of the last upload: what a raster draws. Frame thread only. */
+        int gpuCount;
         int dirtyLo = Integer.MAX_VALUE;
         int dirtyHi = -1;
         boolean originDirty = true;
@@ -571,6 +573,10 @@ public final class Compositor {
                     layer.dirtyLo = Integer.MAX_VALUE;
                     layer.dirtyHi = -1;
                 }
+                // The raster runs outside the lock while batches keep arriving: it draws what was just uploaded,
+                // not layer.count, which may already be ahead of the GPU buffer. Changes after this are drawn next
+                // frame, from their damage.
+                layer.gpuCount = layer.count;
             }
             rects = merge(damage);
             damage.clear();
@@ -619,7 +625,8 @@ public final class Compositor {
         cmds.bindDescriptorSet(cmd, pipeline, InstanceShader.INSTANCES_SET, instances.descriptorSet());
         long vertices = 0;
         for (Layer layer : order) {
-            if (layer.count == 0) {
+            int count = layer.gpuCount;
+            if (count == 0) {
                 continue;
             }
             Composite.Rect clip = rect.intersect(layer.bounds());
@@ -627,8 +634,8 @@ public final class Compositor {
                 continue;
             }
             composite.scissor(cmd, clip);
-            cmds.draw(cmd, layer.count * 6, layer.gpuBase * 6);
-            vertices += layer.count * 6L;
+            cmds.draw(cmd, count * 6, layer.gpuBase * 6);
+            vertices += count * 6L;
         }
         return vertices;
     }
@@ -850,6 +857,7 @@ public final class Compositor {
                 }
                 instances.write(Wire.G_INSTANCES + text.gpuBase * INSTANCE_FLOATS, text.data, 0,
                         text.count * INSTANCE_FLOATS);
+                text.gpuCount = text.count;
                 instances.setUncounted(Wire.G_WINDOWS + 4, 0);
                 instances.setUncounted(Wire.G_WINDOWS + 5, 0);
             }

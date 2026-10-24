@@ -74,7 +74,7 @@ final class VertexStorageBinding implements AutoCloseable {
     private final MethodHandle vkDestroyDescriptorPool;
 
     /**
-     * A set binding {@code buffer} at set 0 / {@code binding}, readable from the fragment stage.
+     * A set binding {@code buffer} at {@code binding}, readable from the vertex and fragment stages.
      *
      * @param buffer a {@code VkBuffer} on {@code device}, made with storage-buffer usage; not owned
      */
@@ -152,7 +152,7 @@ final class VertexStorageBinding implements AutoCloseable {
         return descriptorSetLayout;
     }
 
-    /** The set to bind at set 0 when drawing with such a pipeline. */
+    /** The set to bind when drawing with such a pipeline. */
     public long descriptorSet() {
         return descriptorSet;
     }
