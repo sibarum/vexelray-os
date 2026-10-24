@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>dev.vexelray.os</groupId>
+    <artifactId>compositor-m0-spike</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <name>vexelray-os M0 spike</name>
+    <description>
+        Throwaway spike for design.md milestone M0: a nested compositor and two or more programs that send instance
+        batches over a Unix socket and shared memory. It breaks design.md section 1 ("nothing re-implemented") on
+        purpose, to measure decision D2 before the gaps it depends on are closed in their own libraries. See
+        docs/m0-spike.md.
+    </description>
+
+    <properties>
+        <maven.compiler.release>25</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <vexelray.version>0.1.2-SNAPSHOT</vexelray.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-engine</artifactId>
+            <version>${vexelray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-engine-vulkan-api</artifactId>
+            <version>${vexelray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-technique-canvas</artifactId>
+            <version>${vexelray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-canvas</artifactId>
+            <version>${vexelray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-text</artifactId>
+            <version>${vexelray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-vulkan</artifactId>
+            <version>${vexelray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.vexelray</groupId>
+            <artifactId>vexelray-os-linux</artifactId>
+            <version>${vexelray.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>sibarum.tactroller</groupId>
+            <artifactId>tactroller-linux</artifactId>
+            <version>1.2-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

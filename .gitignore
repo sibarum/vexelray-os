@@ -6,3 +6,4 @@ mkosi.builddir/
 *.raw
 *.iso
 .claude/
+target/

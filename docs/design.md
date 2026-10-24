@@ -187,7 +187,8 @@ program that loses state this way is a program not tracking its state, and Krono
 
 The **deadline** for a frame is the TTF's present time minus what the compositor estimates it will cost to draw that
 program's damage. A heavy layer gets an earlier deadline than a light one. A batch that misses its deadline lands in
-the next frame: two frames late instead of the baseline one, never lost.
+the next frame: two frames late instead of the baseline one, never lost. A batch that arrives early, before its TTF
+frame, is held until that frame, and no wake names a frame the program already has a batch for (decisions D14).
 
 ### 3.3 Apply, then rasterize
 
@@ -470,6 +471,8 @@ Each is closed in its own repo, with that repo's tests, before anything here dep
 | M7 | Wayland bridge. | §10 |
 
 Each milestone ends with its entries in [decisions.md](decisions.md), including the ones that failed.
+
+M0 was first run as a throwaway spike on tier B: [m0-spike.md](m0-spike.md).
 
 ## 13. Open questions
 

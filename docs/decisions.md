@@ -38,6 +38,12 @@ batches (§2).
 **Evidence.** Reasoning only. M0 measures instance volume for a text-heavy window and the frame time against
 instance count.
 
+*M0 spike, tier B on llvmpipe ([m0-spike.md](m0-spike.md)):* holds. An instance is 128 bytes against 648 as fat
+vertices. A 780x620 editor is 1,060 instances, 136 KB retained against 1.93 MB for one buffer of its pixels; its first
+batch is 134 KB. A keystroke's batch is 404 bytes and an animation frame's 1 KB, applied in under 0.05 ms. No
+realistic phase missed a frame. The limit on llvmpipe is raster, about 1.4 ms per thousand glyph instances for the
+whole screen, not volume. The trigger was not reached.
+
 **Trigger.** Instance volume makes the copy path (tier B) miss frames for a realistic window, or a look turns out to
 need data no instance can carry.
 
@@ -81,7 +87,9 @@ the same frame is ignored, quietly to the program and counted on the probe (§3.
 - *Latest-wins per frame* (atchung's `COALESCE_LATEST`). Free for shared-memory slots, but it makes a batch's
   arrival meaningless as a signal, and §3.3 starts rasterizing on arrival.
 
-**Evidence.** Reasoning only.
+**Evidence.** *M0 spike:* ignored exactly the 23 duplicates a program sent on purpose, and nothing else across 833
+batches. It also showed the compositor can provoke this rule itself, by naming a frame the program already answered;
+D14 rules that out.
 
 **Trigger.** A correctly timed program loses state to this rule, which would mean the TTF is not a clock a program
 can rely on.
@@ -94,7 +102,8 @@ desktop exchanges nothing. A program may stay awake or keep its own schedules (�
 **Against.** A roll call of every program every frame. 50 programs at 144 Hz is about 7,200 wakes a second on a still
 desktop, and keeps every core out of deep sleep.
 
-**Evidence.** Reasoning only.
+**Evidence.** *M0 spike:* a still desktop exchanged zero messages and cost 0.01 ms a frame; dragging a window
+exchanged zero as well. Typing cost 0.4 messages a frame, an animating window 2.
 
 **Trigger.** Missing a deadline proves common for programs woken only on demand, because the wake itself costs too
 much of the frame.
@@ -111,6 +120,11 @@ more, and gives the program no way to sample motion for when it will be seen.
 **Evidence.** Reasoning only. M0 publishes how often each program misses, the cheapest test of whether the predictor
 is honest.
 
+*M0 spike:* 832 of 833 batches landed in their TTF frame, and the present time was predicted to within 0.1 to 0.3 ms
+at p50 (5.3 ms at p95). Not a stress test: programs answered in under a millisecond against about 15 ms of slack.
+Wake to present was two frames, almost all of it waiting for frame boundaries (wakes sent at a frame's end, raster at
+the next frame's start), not the protocol.
+
 **Trigger.** The predictor's error is larger than a frame often enough that the TTF misleads more than it helps.
 
 ## D8 — Rasterize on arrival; cut off when a miss is predicted (2026-10-23)
@@ -123,7 +137,7 @@ one raster for the next frame (§3.3, §3.4).
 **Against.** One raster of the whole frame at a latch. All the GPU work lands at the end of the frame, and a miss
 drops the whole desktop's frame rather than the work that could not finish.
 
-**Evidence.** Reasoning only.
+**Evidence.** Reasoning only. *Not tested by the M0 spike*, which rasterizes once per frame at its start.
 
 **Trigger.** Overlapping damage from programs answering at different times redraws the same regions so often that
 one raster at a latch costs less.
@@ -137,7 +151,9 @@ pixels are retained only as the one composite, and a reveal is a raster from ret
 buffers of each window's pixels, and window effects that scale a texture rather than redraw resolution-independent
 shapes.
 
-**Evidence.** Reasoning only.
+**Evidence.** *M0 spike:* window moves and reveals redrawn from retained instances with no program told, 167,000
+damaged px a frame in 4.9 ms on llvmpipe. Damage-scoped raster needs culling as well as a scissor: one 220x18 rect
+costs 0.56 ms over 500 instances and 4.19 ms over 16,000.
 
 **Trigger.** An effect the desktop needs that can only be had from a window's pixels (§13, question 8, is the
 nearest).
@@ -222,3 +238,22 @@ does not offer anywhere else.
 **Evidence.** Reasoning only. The fd-grant model follows Flatpak portals and capability systems.
 
 **Trigger.** Users approving prompts without reading them anyway, measured by how fast prompts are answered.
+
+## D14 — A batch early for its TTF frame is held; a TTF never repeats a frame (2026-10-23)
+
+**Decided.** A batch that arrives before the frame its TTF named is held, unapplied, until that frame, and the wake it
+answers stays outstanding meanwhile, so the program cannot rewrite the memory the batch is in. A wake never names a
+frame earlier than the one after the last batch this program had accepted (§3.1, §3.2).
+
+**Against.** *Drawing every batch on arrival,* which §3.3 implied and the M0 spike first did. A batch sampled for a
+present time a frame away is shown a frame early. With the second rule in place this ratchets: once one TTF is a frame
+ahead, every later one is too, and the window's motion stays a frame early for good while every batch counts as on
+time. In the spike, a dashboard ran with a 17 ms prediction error at p50 until this was found.
+
+*No floor on the TTF:* a fast answer to a later wake names the same frame as a slow answer to an earlier one, and D5
+ignores it. The compositor would be provoking the rule meant for misbehaving programs.
+
+**Evidence.** M0 spike: holding brought the prediction error from 17 ms to 0.1 ms at p50. One to two batches in each
+six-second phase were early, all of them after a wake predicted to need two frames.
+
+**Trigger.** Raster on arrival (D8) makes holding cost a frame's worth of spread GPU work often enough to matter.
