@@ -1,18 +1,7 @@
 # vexelray-os
 
-A desktop OS on Ubuntu 26.04 LTS whose compositor draws every program the way a VexelRay application draws itself. See [docs/design.md](docs/design.md) and [docs/decisions.md](docs/decisions.md).
+An operating system where every piece people touch is our own, because that is what it takes for
+moving between programs to feel like using one program. The first thing we build is typed,
+cross-app drag-and-drop.
 
-**Start here: [playground/](playground/README.md)**, a stock Ubuntu Desktop VM to experiment in. The mkosi image build below is the later, reproducible stage.
-
-## Build (in WSL2 Ubuntu or any Linux)
-```bash
-sudo apt install qemu-utils qemu-system-x86 ovmf systemd-container pipx
-pipx install git+https://github.com/systemd/mkosi.git
-scripts/build.sh vm,dev        # VMware / VM image
-scripts/build.sh nvidia,dev    # laptop image
-```
-
-## Run
-- VMware: `scripts/to-vmdk.sh`, then create a VM (Ubuntu 64-bit, UEFI, 3D acceleration on) using the VMDK.
-- QEMU: `scripts/run-qemu.sh`
-- Verify inside the guest: `tests/smoke.sh`
+See [docs/vision.md](docs/vision.md).

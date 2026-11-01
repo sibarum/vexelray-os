@@ -1,9 +1,2 @@
-mkosi.output/
-mkosi.cache/
-mkosi.builddir/
-*.qcow2
-*.vmdk
-*.raw
-*.iso
 .claude/
 target/

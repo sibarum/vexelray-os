@@ -1,3 +1,2 @@
-# Normalize text files to LF, and check them out as LF regardless of core.autocrlf:
-# everything here runs on Linux (scripts, mkosi config, files baked into the image).
+# Normalize text files to LF, and check them out as LF regardless of core.autocrlf.
 * text=auto eol=lf
