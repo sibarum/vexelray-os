@@ -2,7 +2,7 @@
 
 ## Goal
 
-An operating system where every piece people touch is our own: the compositor, how programs talk to
+A desktop where every piece people touch is our own: the compositor, how programs talk to
 each other, the type system for data, the app model, the toolkit, and the shell. We build our own
 pieces because that is the only way to get the polish we want, not for the sake of it. Polish
 that stops at an app's edge is not polish. The hardest moments are the ones between programs:
@@ -11,6 +11,38 @@ animates. No single app can make those smooth. The OS has to.
 
 We judge every design choice by one question: does it make moving between programs feel like
 using one program?
+
+## What VexelRay OS is
+
+VexelRay OS is a user experience more than an operating system: the desktop, its programs,
+utilities, and preferences, all written in Java on the VexelRay framework. None of it knows or
+cares which operating system is underneath.
+It runs on a **host**:
+
+- **Standalone.** It ships as a Debian variant (or similar) that boots straight into the
+  VexelRay desktop.
+- **Hosted.** It runs as an ordinary app on Windows: a desktop of its own, its programs running as
+  native Windows processes, with no VM and no emulation.
+
+Both are first-class. The host's kernel and drivers are always stock. We may add a kernel extension
+or two, but we never change the kernel or drivers themselves. Everything above them is ours.
+
+### The host seam
+
+Everything the desktop and its programs use goes through one seam, with one implementation per
+host. The differences that must not leak through it:
+
+- **Files.** Path conventions, case sensitivity, and line endings. Programs see VexelRay's own
+  rules on every host.
+- **Security.** Handles, sandboxing, and how a granted capability crosses into another process
+  (file descriptors passed over a socket on Linux, duplicated handles on Windows).
+- **Talking between processes.** Shared memory and wake-ups are built on what each host
+  provides, behind one interface.
+- **Graphics and input.** On Linux the compositor drives the display itself; on Windows it is a
+  window, or a set of windows, drawn through the host. The drag overlay is always on top of the
+  VexelRay desktop either way.
+
+Any design that only works on one host is unfinished.
 
 ## The flagship: drag-and-drop
 
@@ -89,16 +121,27 @@ read what is being dragged until it is dropped on that program.
 - **Talking between processes is ours.** It carries typed values and handles, not byte streams,
   and the type registry and converter graph are built on it.
 
+## Decided
+
+- **The kernel and drivers are stock** (2026-11-01). We may add a kernel extension or two, but
+  never change the kernel or drivers themselves.
+- **Hosted on Windows is first-class** (2026-11-01). The desktop and its programs are
+  platform-independent; the standalone Debian-based OS is one host and Windows is another.
+
+- **Programs are Java** (2026-11-01), written on the VexelRay framework.
+
 ## Open questions
 
-1. **How deep "our own" goes.** Proposed: everything above the kernel is ours, and the kernel and
-   drivers are borrowed. Writing our own kernel and drivers takes years and buys none of the polish
-   described here. Not yet confirmed.
-2. **Running inside Windows.** Earlier (2026-10-24) the goal included running as a native app
-   on Windows, like a desktop within the desktop. If that still holds, talking between processes
-   must work on both Windows and Linux from the start.
-3. **Language and toolkit.** Either programs are written on the VexelRay framework (Java) as the
-   native toolkit, or the OS defines its own app model and VexelRay is one client of it.
+1. **How programs are packaged.** The leaning is: programs ship as jars, not native-image binaries,
+   resolved and installed by Maven or a fork of it. Not settled. Things to weigh:
+   - **Fit.** Types and converters could be published as artifacts too, so a program that
+     needs a type depends on it like any other library, and the registry is a view over what is
+     installed.
+   - **Startup.** A JVM starts slower than a native binary, and a program that opens late breaks
+     the polish. Ahead-of-time caches (JDK's AOT cache, class data sharing) or a pool of
+     warmed-up JVMs might close the gap. This needs measuring before deciding.
+   - **Sharing.** Many programs on the same libraries could share one copy on disk, and possibly
+     in memory.
 
 ## History
 
